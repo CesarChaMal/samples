@@ -1,0 +1,38 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.52-Hybrid.types
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:3.0.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:3.0.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - mysql-type:2.2.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.doc.kube.kcontainers.52-Hybrid.types.types.nodes.ApacheHybrid:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+    properties:
+      container:
+        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+        default:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+    capabilities:
+      http_endpoint:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+    requirements:
+      - database:
+          capability: tosca.capabilities.Endpoint.Database
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        inputs:
+            ENV_DB_USER: { get_property: [TARGET,database, db_user] }
+            ENV_DB_PASS: { get_property: [TARGET,database, db_password] }
+            ENV_DB_IP: { get_attribute: [TARGET, ip_address] }
+            ENV_DB_PORT: { get_property: [TARGET, database, port] }
+            ENV_DB_NAME: { get_property: [TARGET, database, name] }
